@@ -1,5 +1,6 @@
 package com.mahmoudshaaban.kotlincoroutines
 
+import android.nfc.Tag
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -15,17 +16,27 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        // Global scope means every coroutines needs to be started in a certain scope
-        // global Scope Means this coroutines will live as long as our app does and if certain job finishes it will be destroyed
-        // and not kept alive until the app dies
-        // global scope means it's executed asyc
         GlobalScope.launch {
-            // Note : if main thread finishes his work before coroutines executed it will not executed
-            delay(3000L)
-            Log.d(TAG, "Coroutines say hello from thread ${Thread.currentThread().name}")
+            // suspend functions it can be executed in another suspend fun or inside the coroutines
+            // it can not be called in main thread
+
+            // it will be delayed for 6 seconds b/c in called from the same coroutines
+            val network = doNetWorkCall()
+            val network2 = doNetWorkCall2()
+
+            Log.d(TAG,network)
+            Log.d(TAG,network2)
         }
-        Log.d(TAG, "Coroutines say hello from thread ${Thread.currentThread().name}")
+    }
+
+    suspend fun doNetWorkCall(): String {
+        delay(3000L)
+        return "Network Call 1"
+    }
+
+    suspend fun doNetWorkCall2(): String {
+        delay(3000L)
+        return "Network Call 2"
 
     }
 }
