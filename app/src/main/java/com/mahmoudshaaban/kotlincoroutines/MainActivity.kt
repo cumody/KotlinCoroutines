@@ -16,33 +16,24 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        Log.d(TAG, "Before RunBlocking")
-        // RunBlocking is executed in main Thread
-        runBlocking {
-            Log.d(TAG, "Start RunBlocking")
 
-            // we can put launch without GlobalScope b/c we are already in mainThread(RunBlocking)
-            launch(IO) {
 
+        val job = GlobalScope.launch(Dispatchers.Default) {
+            repeat(5) {
+                Log.d(TAG, "Coroutine 1")
                 delay(5000L)
-                Log.d(TAG, "Finished IO Coroutine 1")
-
-            }
-            launch(IO) {
-
-                delay(5000L)
-                Log.d(TAG, "Finished IO Coroutine 2")
-
             }
 
-
-            Log.d(TAG, "End RunBlocking")
 
         }
-        Log.d(TAG, "After RunBlocking")
+
+        runBlocking {
+
+            // now what are we doing we freeze the ui until job is completed
+            job.join()
+            Log.d(TAG, "Main Thread is Continuing")
+        }
 
 
     }
-
-
 }
