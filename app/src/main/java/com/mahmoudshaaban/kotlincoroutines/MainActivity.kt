@@ -1,5 +1,6 @@
 package com.mahmoudshaaban.kotlincoroutines
 
+import android.content.Intent
 import android.nfc.Tag
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -8,6 +9,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlin.concurrent.thread
+import kotlin.system.measureTimeMillis
+import kotlin.time.measureTime
 
 class MainActivity : AppCompatActivity() {
 
@@ -17,23 +20,21 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+       Next.setOnClickListener(){
+           GlobalScope.launch {
+               while (true){
+               delay(1000L)
+                   Log.d(TAG,"still running ")
+               }
+           }
 
-        val job = GlobalScope.launch(Dispatchers.Default) {
-            repeat(5) {
-                Log.d(TAG, "Coroutine 1")
-                delay(5000L)
-            }
-
-
-        }
-
-        runBlocking {
-
-            // now what are we doing we freeze the ui until job is completed
-            job.join()
-            Log.d(TAG, "Main Thread is Continuing")
-        }
-
-
+           GlobalScope.launch {
+               delay(5000L)
+               Intent(this@MainActivity,SecondActivity::class.java).also {
+                   startActivity(it)
+                   finish()
+               }
+           }
+       }
     }
 }
