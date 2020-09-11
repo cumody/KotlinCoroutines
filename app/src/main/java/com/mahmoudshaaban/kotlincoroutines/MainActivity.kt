@@ -4,10 +4,10 @@ import android.nfc.Tag
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import kotlinx.coroutines.Delay
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.IO
+import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
 
@@ -16,16 +16,23 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        GlobalScope.launch {
-            // suspend functions it can be executed in another suspend fun or inside the coroutines
-            // it can not be called in main thread
+        GlobalScope.launch(Dispatchers.IO) {
+            // Dispatchers.Unconfined is different: it executes coroutine immediately on the current thread
+            // and later resumes it in whatever thread called resume.
+            // It is usually a good fit for things like intercepting regular non-suspending API
+            // or invoking coroutine-related code from blocking world callbacks.
 
-            // it will be delayed for 6 seconds b/c in called from the same coroutines
+            Log.d(TAG, "current thread : ${Thread.currentThread().name}")
+
             val network = doNetWorkCall()
-            val network2 = doNetWorkCall2()
 
-            Log.d(TAG,network)
-            Log.d(TAG,network2)
+
+            // Switching from a IO To Main
+            GlobalScope.launch(Dispatchers.Main) {
+                Log.d(TAG, "current thread : ${Thread.currentThread().name}")
+                text.text = network
+            }
+
         }
     }
 
@@ -34,9 +41,4 @@ class MainActivity : AppCompatActivity() {
         return "Network Call 1"
     }
 
-    suspend fun doNetWorkCall2(): String {
-        delay(3000L)
-        return "Network Call 2"
-
-    }
 }
